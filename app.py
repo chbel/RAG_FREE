@@ -5,10 +5,16 @@ st.set_page_config(page_title="FallahTech — Analyse Financière")
 st.title("FallahTech — Analyse Financière et Décision d'Investissement")
 
 PDF_PATH = "C:\\Users\\chbel bh\\Desktop\\RAG_FREE\\Etats_Financiers_Historiques_NCT.pdf"
+XLSX_PATH = "C:\\Users\\chbel bh\\Desktop\\RAG_FREE\\FallahTech_BusinessPlan_Complet.xlsx"
+ZIP_PATH = "C:\\Users\\chbel bh\\Desktop\\RAG_FREE\\DataRoom_FallahTech_Professionnelle.zip"
 
-@st.cache_resource(show_spinner="Chargement du PDF...")
+@st.cache_resource(show_spinner="Chargement des documents...")
 def load_rag():
-    return RAGSystem(PDF_PATH)
+    return RAGSystem(
+        pdf_path=PDF_PATH,
+        xlsx_path=XLSX_PATH,
+        zip_path=ZIP_PATH
+    )
 
 rag = load_rag()
 
