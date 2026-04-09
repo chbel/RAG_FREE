@@ -10,40 +10,33 @@ OLLAMA_MODEL = "mistral"
 
 class RAGSystem:
 
-    def __init__(self, pdf_path: str):
-        loader = PyPDFLoader(pdf_path)
+    def __init__(self, PDF_PATH: str):
+        loader = PyPDFLoader(PDF_PATH)
         documents = loader.load()
 
         splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
-            chunk_overlap=100
+            chunk_size=300,
+            chunk_overlap=50
         )
         chunks = splitter.split_documents(documents)
 
         embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         vectorstore = FAISS.from_documents(chunks, embeddings)
-        self.retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+        self.retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
     def query(self, question: str) -> str:
-        # Find relevant chunks from the PDF
         docs = self.retriever.invoke(question)
         context = "\n\n".join(doc.page_content for doc in docs)
 
-        prompt = f"""Tu es un analyste financier expert spécialisé sur FallahTech SARL.
+        prompt = f"""Tu es un analyste financier expert sur FallahTech SARL.
+Si la question ne concerne pas FallahTech ou ses finances, réponds uniquement : "Cette question ne concerne pas le document financier de FallahTech."
+Utilise uniquement les données du contexte. Ne génère aucun chiffre inventé. Réponds en français de façon concise.
 
-RÈGLES :
-- Si la question ne concerne pas FallahTech ou ses finances, réponds : "Cette question ne concerne pas le document financier de FallahTech."
-- Sinon, réponds précisément en utilisant UNIQUEMENT les données du contexte ci-dessous
-- Ne génère aucun chiffre qui n'est pas dans le contexte
-- Sois concis et professionnel
-- Réponds en français
-
-CONTEXTE EXTRAIT DU DOCUMENT :
+CONTEXTE:
 {context}
 
-QUESTION : {question}
-
-RÉPONSE :"""
+QUESTION: {question}
+RÉPONSE:"""
 
         response = requests.post(
             OLLAMA_URL,
@@ -53,7 +46,8 @@ RÉPONSE :"""
                 "stream": False,
                 "options": {
                     "temperature": 0.1,
-                    "num_predict": 800,
+                    "num_predict": 600,
+                    "num_ctx": 4096,
                 }
             },
             timeout=180
