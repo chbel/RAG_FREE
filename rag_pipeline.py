@@ -4,7 +4,7 @@ import fitz  # PyMuPDF — better font handling than PyPDFLoader
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from openpyxl import load_workbook
 
